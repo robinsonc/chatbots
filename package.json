@@ -1,0 +1,24 @@
+{
+  "name": "botkit-multi-bot",
+  "version": "0.0.1",
+  "description": "Multiple social channel bot example using botkit-middleware-watson with Botkit.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "license": "Apache-2.0",
+  "dependencies": {
+    "body-parser": "^1.15.2",
+    "botkit": "^0.5",
+    "dotenv": "^2.0.0",
+    "express": "^4.13.4",
+    "botkit-middleware-watson": "^1.3.0",
+    "botbuilder": "^3.7.0",
+    "botkit-studio-sdk": "^1.0.2",
+    "crypto": "0.0.3",
+    "command-line-args": "^4.0.2",
+    "localtunnel": "^1.8.2"
+  },
+  "devDependencies": {},
+  "author": "robin@adobe.com"
+}
