@@ -16,14 +16,17 @@
 
 var Botkit = require('botkit');
 var controller = Botkit.botframeworkbot({
-  appId:process.env.APP_ID,
-  appPassword:process.env.APP_PASSWORD
+    debug: true
 });
 
-var bot = controller.spawn();
-controller.hears('(.*)', 'message_received', function(bot, message) {
-  bot.reply(message, message.watsonData.output.text.join('\n'));
+var bot = controller.spawn({
+    appId: process.env.APP_ID,
+    appPassword: process.env.APP_PASSWORD
 });
+
+// controller.hears('(.*)', 'message_received', function(bot, message) {
+//    bot.reply(message, "hello Don!!");
+// });
 
 module.exports.controller = controller;
 module.exports.bot = bot;
