@@ -21,9 +21,6 @@ var bodyParser = require('body-parser');
 var verify = require('./security');
 var app = express();
 
-// app.use(bodyParser.json({
-//   verify: true
-// }));
 app.use(bodyParser.json()); // for parsing application/json
 
 var port = process.env.PORT || 3000;
