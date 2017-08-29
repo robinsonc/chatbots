@@ -13,18 +13,43 @@ var callAPI = function(options, callback) {
         // console.log(data.hits.hits);
         var converter = JM.makeConverter({
           all_products: ['hits', JM.map('_source.product')],
-          products:['hits', JM.map('_source.product', function(input){
-            return {"name":input.product, "price":input.price};
+          // products:['hits', JM.map('_source.product', function(input){
+          //   return {"name":input.product, "price":input.price};
 
-          })]
+          // })]
         });
         
        var result = converter(data.hits);
         
        console.log(result); // should be {name: 'John'} 
-
-        return callback('<img src="http://myntra.myntassets.com/assets/images/1729487/2017/1/25/11485347006222-WROGN-Men-Olive-Printed-V-Neck-T-Shirt-4691485347005939-1.jpg" alt="img">');
-
+        var attachments = {
+                            "attachments": [
+                                {
+                                    "fallback": "Required plain-text summary of the attachment.",
+                                    "color": "#36a64f",
+                                    "pretext": "Optional text that appears above the attachment block",
+                                    "author_name": "Bobby Tables",
+                                    "author_link": "http://flickr.com/bobby/",
+                                    "author_icon": "http://flickr.com/icons/bobby.jpg",
+                                    "title": "Slack API Documentation",
+                                    "title_link": "https://api.slack.com/",
+                                    "text": "Optional text that appears within the attachment",
+                                    "fields": [
+                                        {
+                                            "title": "Priority",
+                                            "value": "High",
+                                            "short": false
+                                        }
+                                    ],
+                                    "image_url": "http://my-website.com/path/to/image.jpg",
+                                    "thumb_url": "http://example.com/path/to/thumb.png",
+                                    "footer": "Slack API",
+                                    "footer_icon": "https://platform.slack-edge.com/img/default_application_icon.png",
+                                    "ts": 123456789
+                                }
+                            ]
+                        };
+        return callback('heyy',attachments);
       })
       .catch(function (err) {
         // Something bad happened, handle the error
