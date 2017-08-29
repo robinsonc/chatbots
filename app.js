@@ -76,11 +76,9 @@ var callActions = function(controller){
     client.message(message.text, {})
         .then((data) => {
           var entities = data.entities;
-          var reply = botEngine(entities);
-          //bot.reply(message, JSON.stringify(data.entities));
-          // console.log("wit OUTPUT msg == "+JSON.stringify(data.entities));
-          bot.reply(message, reply); 
-
+          botEngine(entities, function(reply) {
+              bot.reply(message, reply);
+          }) 
         })
         .catch(console.error);
           
@@ -91,7 +89,7 @@ var callActions = function(controller){
   //   });
 }
 
-var botEngine = function(entities) {
+var botEngine = function(entities, callback) {
   let queryObject = {};
     for (var key in entities) {
       var item = entities[key];
@@ -133,12 +131,11 @@ var botEngine = function(entities) {
     }
   
     var API = require('./data');
-    return API.call(options, API.processData);
-    return "hiiii";
+    callback(API.call(options, API.processData));
   }
   else {
     console.log("No Match Found!!!!");
-    return "How can I help You?";
+    callback("How can I help You?");
   }
-  
+
 }
