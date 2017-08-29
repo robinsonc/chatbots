@@ -5,7 +5,7 @@
 */
 
 const request = require('request-promise');
-var callAPI = function(options, callback) {
+var callAPI = function(options, next, callback) {
 
     request(options)  
       .then(function (response) {
@@ -19,9 +19,9 @@ var callAPI = function(options, callback) {
       })
 }
 
-var mapJson = function(data) {
+var mapJson = function(data, next, res) {
   console.log(data);
-  return "hello";
+  res.send('hello');
 }
 
 module.exports.call = callAPI;

@@ -133,8 +133,7 @@ var botEngine = function(entities) {
     }
   
     var API = require('./data');
-    var result = API.call(options, API.processData);
-    return result;
+    API.call(options, API.processData);
   }
   else {
     console.log("No Match Found!!!!");
