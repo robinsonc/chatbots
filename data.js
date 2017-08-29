@@ -46,7 +46,30 @@ var callAPI = function(options, callback) {
                   "footer": "Slack API",
                   "footer_icon": "https://platform.slack-edge.com/img/default_application_icon.png",
                   "ts": 123456789
-              }
+              },
+              {
+                "fallback": "Required plain-text summary of the attachment.",
+                "color": "#36a64f",
+                "pretext": "second one",
+                "author_name": "Robby Abraham Chacko",
+                "author_link": "http://flickr.com/bobby/",
+                "author_icon": "http://flickr.com/icons/bobby.jpg",
+                "title": "Adidas t shirt",
+                "title_link": "https://api.slack.com/",
+                "text": "Optional text that appears within the attachment",
+                "fields": [
+                    {
+                        "title": "Priority",
+                        "value": "High",
+                        "short": false
+                    }
+                ],
+                "image_url": "http://myntra.myntassets.com/assets/images/1729487/2017/1/25/11485347006200-WROGN-Men-Olive-Printed-V-Neck-T-Shirt-4691485347005939-2.jpg",
+                "thumb_url": "http://myntra.myntassets.com/assets/images/1729487/2017/1/25/11485347006222-WROGN-Men-Olive-Printed-V-Neck-T-Shirt-4691485347005939-2.jpg",
+                "footer": "Slack API",
+                "footer_icon": "https://platform.slack-edge.com/img/default_application_icon.png",
+                "ts": 123456789
+            }
           ]
       }
         return callback(attachments);
