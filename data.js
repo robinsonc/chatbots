@@ -24,10 +24,10 @@ var callAPI = function(options, callback) {
        for (var key in result['products']) {
          if (result['products'].hasOwnProperty(key)) {
            var element = result['products'][key];
-           console.log(element);
+           console.log(element['name']);
            for (var key2 in element) {
-             console.log(key2);
-             console.log(element[key2]);
+            //  console.log(key2);
+            //  console.log(element[key2]);
             }
 
          }
