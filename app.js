@@ -77,7 +77,7 @@ var callActions = function(controller){
         .then((data) => {
           var entities = data.entities;
           botEngine(entities, function(reply) {
-              console.log(message, reply);
+              // console.log(message,reply);
               bot.reply(message, reply);
           }) 
         })
@@ -132,7 +132,7 @@ var botEngine = function(entities, callback) {
     }
   
     var API = require('./data');
-    console.log(callback(API.call(options, API.processData)));
+    return callback(API.call(options, API.processData));
   }
   else {
     console.log("No Match Found!!!!");
