@@ -10,7 +10,7 @@ var callAPI = function(options, callback) {
       .then(function (data) {
         // Request was successful, use the response object at will
         console.log(data)
-        return callback(data.hits.total);
+        return callback(data);
 
       })
       .catch(function (err) {
