@@ -9,7 +9,7 @@ var callAPI = function(options, callback) {
     request(options)  
       .then(function (response) {
         // Request was successful, use the response object at will
-        return callback(response);
+        return callback('heyy');
 
       })
       .catch(function (err) {
@@ -18,10 +18,4 @@ var callAPI = function(options, callback) {
       })
 }
 
-var mapJson = function(data) {
-  console.log(data);
-  return "heyy";
-}
-
 module.exports.call = callAPI;
-module.exports.processData = mapJson;
