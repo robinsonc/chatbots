@@ -5,7 +5,7 @@
 */
 
 const request = require('request-promise');
-var callAPI = function(options, next, callback) {
+var callAPI = function(options, callback) {
     request(options)  
       .then(function (response) {
         // Request was successful, use the response object at will
@@ -18,7 +18,7 @@ var callAPI = function(options, next, callback) {
       })
 }
 
-var mapJson = function(data, next, res) {
+var mapJson = function(data) {
   console.log(data);
   return "hai";
   //res.send('hello');
