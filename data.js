@@ -5,12 +5,13 @@
 */
 
 const request = require('request-promise');
-var callAPI = function(options) {
+var callAPI = function(options, callback) {
 
     request(options)  
       .then(function (response) {
         // Request was successful, use the response object at will
-          console.log(response);
+        callback(response);
+
       })
       .catch(function (err) {
         // Something bad happened, handle the error
@@ -18,4 +19,9 @@ var callAPI = function(options) {
       })
 }
 
+var mapJson = function(data) {
+  console.log(data);
+}
+
 module.exports.call = callAPI;
+module.exports.processData = mapJson;

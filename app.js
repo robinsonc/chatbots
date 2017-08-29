@@ -123,15 +123,9 @@ var botEngine = function(entities) {
   }
   if(queryString.length > 0) {
     queryString = encodeURIComponent(queryString.slice(0, -4));
-    // var options = {
-    //   host: 'or1010051031099.corp.adobe.com',
-    //   port: 9200,
-    //   path: '/myntra/_search?q='+queryString,
-    //   method: 'GET'
-    // };
     const options = {  
       method: 'GET',
-      uri: 'http://or1010051031099.corp.adobe.com:9200/myntra/_search',
+      uri: process.env.ELASTIC_HOST,
       qs: {
         q: queryString
       },
@@ -139,12 +133,8 @@ var botEngine = function(entities) {
     }
   
     var API = require('./data');
-    console.log(options);
-    var result = API.call(options);
-    console.log(result);
-    console.log(queryString);
-    return 'hello';
-    
+    API.call(options, API.processData);
+    // return 'hello';
   }
   else {
     console.log("No Match Found!!!!");
