@@ -6,7 +6,6 @@
 
 const request = require('request-promise');
 var callAPI = function(options, next, callback) {
-
     request(options)  
       .then(function (response) {
         // Request was successful, use the response object at will
