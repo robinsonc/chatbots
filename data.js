@@ -22,6 +22,9 @@ var callAPI = function(options, callback) {
        var result = converter(data.hits);
        var attachments = { "attachments":[] };
        for (var key in result['products']) {
+         if(attachments.attachments.length > 6) {
+           break;
+         }
          if (result['products'].hasOwnProperty(key)) {
             var element = result['products'][key];
           //  console.log(element['name']);
@@ -35,7 +38,7 @@ var callAPI = function(options, callback) {
                           "thumb_url": element['image'],
                           "footer": "Elastic API",
                           "footer_icon": "https://platform.slack-edge.com/img/default_application_icon.png",
-                          "ts": new Date()
+                          "ts": + new Date()
                       };
             attachments.attachments.push(output);
 
