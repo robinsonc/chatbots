@@ -10,9 +10,7 @@ var callAPI = function(options) {
     request(options)  
       .then(function (response) {
         // Request was successful, use the response object at will
-         if(response && response.statusCode == 200) {
           console.log(response);
-          }
       })
       .catch(function (err) {
         // Something bad happened, handle the error
