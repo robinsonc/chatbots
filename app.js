@@ -123,12 +123,20 @@ var botEngine = function(entities) {
   }
   if(queryString.length > 0) {
     queryString = encodeURIComponent(queryString.slice(0, -4));
-    var options = {
-      host: 'or1010051031099.corp.adobe.com',
-      port: 9200,
-      path: '/myntra/_search?q='+queryString,
-      method: 'GET'
-    };
+    // var options = {
+    //   host: 'or1010051031099.corp.adobe.com',
+    //   port: 9200,
+    //   path: '/myntra/_search?q='+queryString,
+    //   method: 'GET'
+    // };
+    const options = {  
+      method: 'GET',
+      uri: 'http://or1010051031099.corp.adobe.com/myntra/_search',
+      qs: {
+        q: queryString
+      },
+      json: true
+    }
   
     var API = require('./data');
     console.log(options);
