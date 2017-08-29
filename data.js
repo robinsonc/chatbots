@@ -14,8 +14,9 @@ var callAPI = function(options, callback) {
         var converter = JM.makeConverter({
           all_products: ['hits', JM.map('_source.product')],
           products:['hits', JM.map('_source.product', function(input){
-                name:input.product;
-                price:input.price;
+                name:input.product,
+                price:input.price
+
           })]
         });
         
