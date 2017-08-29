@@ -25,7 +25,7 @@ var callAPI = function(options, callback) {
          if (result['products'].hasOwnProperty(key)) {
            var element = result['products'][key];
            for (var key2 in element) {
-             console.log(element[key2]['value']);
+             console.log(element[key2]['name']);
             }
 
          }
