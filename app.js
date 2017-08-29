@@ -131,7 +131,7 @@ var botEngine = function(entities) {
     // };
     const options = {  
       method: 'GET',
-      uri: 'http://or1010051031099.corp.adobe.com/myntra/_search',
+      uri: 'http://or1010051031099.corp.adobe.com:9200/myntra/_search',
       qs: {
         q: queryString
       },
