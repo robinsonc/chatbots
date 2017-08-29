@@ -23,45 +23,26 @@ var callAPI = function(options, callback) {
        var attachments = { "attachments":[] };
        for (var key in result['products']) {
          if (result['products'].hasOwnProperty(key)) {
-           var element = result['products'][key];
-           console.log(element['name']);
-           for (var key2 in element) {
-            //  console.log(key2);
-            //  console.log(element[key2]);
-            }
+            var element = result['products'][key];
+          //  console.log(element['name']);
+            var output = {
+                          "fallback": element['name'],
+                          "color": "#36a64f",
+                          "title": element['name'],
+                          "title_link": element['link'],
+                          "text": "Price:"+ element['price'],
+                          "image_url": element['image'],
+                          "thumb_url": element['image'],
+                          "footer": "Elastic API",
+                          "footer_icon": "https://platform.slack-edge.com/img/default_application_icon.png",
+                          "ts": new Date()
+                      };
+            attachments.attachments.push(output);
 
          }
        }
-                  
 
-      //   var attachments = {
-      //     "attachments": [
-      //         {
-      //             "fallback": "Required plain-text summary of the attachment.",
-      //             "color": "#36a64f",
-      //             "pretext": "Optional text that appears above the attachment block",
-      //             "author_name": "Bobby Tables",
-      //             "author_link": "http://flickr.com/bobby/",
-      //             "author_icon": "http://flickr.com/icons/bobby.jpg",
-      //             "title": "Slack API Documentation",
-      //             "title_link": "https://api.slack.com/",
-      //             "text": "Optional text that appears within the attachment",
-      //             "fields": [
-      //                 {
-      //                     "title": "Priority",
-      //                     "value": "High",
-      //                     "short": false
-      //                 }
-      //             ],
-      //             "image_url": "http://myntra.myntassets.com/assets/images/1729487/2017/1/25/11485347006222-WROGN-Men-Olive-Printed-V-Neck-T-Shirt-4691485347005939-1.jpg",
-      //             "thumb_url": "http://myntra.myntassets.com/assets/images/1729487/2017/1/25/11485347006222-WROGN-Men-Olive-Printed-V-Neck-T-Shirt-4691485347005939-1.jpg",
-      //             "footer": "Slack API",
-      //             "footer_icon": "https://platform.slack-edge.com/img/default_application_icon.png",
-      //             "ts": 123456789
-      //         }
-      //     ]
-      // }
-        return callback('heyy');
+        return callback(attachments);
       })
       .catch(function (err) {
         // Something bad happened, handle the error
