@@ -21,6 +21,7 @@ var callAPI = function(options, callback) {
 
 var mapJson = function(data) {
   console.log(data);
+  return "hello";
 }
 
 module.exports.call = callAPI;
