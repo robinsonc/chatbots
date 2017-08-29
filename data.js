@@ -10,12 +10,12 @@ var callAPI = function(options, callback) {
     request(options)  
       .then(function (data) {
         // Request was successful, use the response object at will
-        console.log(data.hits.hits);
+        // console.log(data.hits.hits);
         var converter = JM.makeConverter({
-          all_products: ['_source', JM.map('product')]
+          all_products: ['hits', JM.map('_source')]
         });
         
-       var result = converter(data.hits.hits);
+       var result = converter(data.hits);
         
        console.log(result); // should be {name: 'John'} 
 
