@@ -49,7 +49,7 @@ var callAPI = function(options, callback) {
                                 }
                             ]
                         };
-        return callback('heyy',attachments);
+        return callback(attachments);
       })
       .catch(function (err) {
         // Something bad happened, handle the error
