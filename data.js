@@ -22,12 +22,12 @@ var callAPI = function(options, callback) {
        var result = converter(data.hits);
        var attachments = { "attachments":[] };
        for (var key in result['products']) {
-         if(attachments.attachments.length > 6) {
+         if(attachments.attachments.length > 5) {
            break;
          }
          if (result['products'].hasOwnProperty(key)) {
             var element = result['products'][key];
-          //  console.log(element['name']);
+            console.log(element['link']);
             var output = {
                           "fallback": element['name'],
                           "color": "#36a64f",
