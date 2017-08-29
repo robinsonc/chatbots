@@ -5,12 +5,21 @@
 */
 
 const request = require('request-promise');
+var JM = require('json-mapper');
 var callAPI = function(options, callback) {
     request(options)  
       .then(function (data) {
         // Request was successful, use the response object at will
-        console.log(data)
-        return callback(JSON.stringify(data));
+        console.log(data.hits.hits);
+        var converter = JM.makeConverter({
+          all_products: ['_source', JM.map('product')]
+        });
+        
+       var result = converter(data.hits.hits);
+        
+       console.log(result); // should be {name: 'John'} 
+
+        return callback('heyy');
 
       })
       .catch(function (err) {
