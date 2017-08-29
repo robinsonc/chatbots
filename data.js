@@ -7,9 +7,10 @@
 const request = require('request-promise');
 var callAPI = function(options, callback) {
     request(options)  
-      .then(function (response) {
+      .then(function (data) {
         // Request was successful, use the response object at will
-        return callback('heyy');
+        console.log(data)
+        return callback(data.hits.total);
 
       })
       .catch(function (err) {
