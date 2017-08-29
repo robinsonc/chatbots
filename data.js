@@ -20,7 +20,8 @@ var callAPI = function(options, next, callback) {
 
 var mapJson = function(data, next, res) {
   console.log(data);
-  res.send('hello');
+  return "hai";
+  //res.send('hello');
 }
 
 module.exports.call = callAPI;

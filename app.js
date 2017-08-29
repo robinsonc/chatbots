@@ -133,7 +133,7 @@ var botEngine = function(entities) {
     }
   
     var API = require('./data');
-    API.call(options, API.processData);
+    return API.call(options, API.processData);
     return "hiiii";
   }
   else {
