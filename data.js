@@ -9,7 +9,7 @@ var callAPI = function(options, callback) {
     request(options)  
       .then(function (response) {
         // Request was successful, use the response object at will
-        callback(response);
+        return callback(response);
 
       })
       .catch(function (err) {
