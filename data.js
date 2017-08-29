@@ -12,7 +12,7 @@ var callAPI = function(options, callback) {
         // Request was successful, use the response object at will
         // console.log(data.hits.hits);
         var converter = JM.makeConverter({
-          all_products: ['hits', JM.map('_source')]
+          all_products: ['hits', JM.map('_source.product')]
         });
         
        var result = converter(data.hits);
