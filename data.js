@@ -14,8 +14,7 @@ var callAPI = function(options, callback) {
         var converter = JM.makeConverter({
           all_products: ['hits', JM.map('_source.product')],
           products:['hits', JM.map('_source.product', function(input){
-                name:input.product,
-                price:input.price
+            return {"name":input.product, "price":input.price};
 
           })]
         });
@@ -24,7 +23,7 @@ var callAPI = function(options, callback) {
         
        console.log(result); // should be {name: 'John'} 
 
-        return callback('heyy');
+        return callback('<img src="http://myntra.myntassets.com/assets/images/1729487/2017/1/25/11485347006222-WROGN-Men-Olive-Printed-V-Neck-T-Shirt-4691485347005939-1.jpg" alt="img">');
 
       })
       .catch(function (err) {
