@@ -13,7 +13,7 @@ var callAPI = function(options, callback) {
         var converter = JM.makeConverter({
           products: ['hits', JM.map({
               name: '_source.product',
-              link: 'https://www.myntra.com/'+'_source.dre_landing_page_url',
+              link: '_source.dre_landing_page_url',
               price:'_source.discounted_price',
               image:'_source.search_image'
           })]
@@ -32,13 +32,13 @@ var callAPI = function(options, callback) {
                           "fallback": element['name'],
                           "color": "#36a64f",
                           "title": element['name'],
-                          "title_link": element['link'],
+                          "title_link": 'https://www.myntra.com/'+element['link'],
                           "text": "Price:"+ element['price'],
                           "image_url": element['image'],
                           "thumb_url": element['image'],
                           "footer": "Elastic API",
                           "footer_icon": "https://platform.slack-edge.com/img/default_application_icon.png",
-                          "ts": + new Date()
+                          "ts": Math.floor(Date.now() / 1000)
                       };
             attachments.attachments.push(output);
 
