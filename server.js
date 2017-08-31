@@ -20,15 +20,28 @@ var express = require('express');
 var bodyParser = require('body-parser');
 var verify = require('./security');
 var app = express();
+var https = require('https');
+var fs = require('fs');
 
+var options = {
+  key: fs.readFileSync('server.key'),
+  cert: fs.readFileSync('server.crt')
+};
 app.use(bodyParser.json()); // for parsing application/json
 
-var port = process.env.PORT || 3000;
-app.set('port', port);
+// var port = process.env.PORT || 3000;
+// app.set('port', port);
 
 require('./app')(app);
-
 // Listen on the specified port
-app.listen(port, function() {
-  console.log('Client server listening on port ' + port);
-});
+// app.listen(port, function() {
+//   console.log('Client server listening on port ' + port);
+// });
+
+
+
+
+https.createServer(options, function (req, res) {
+  res.writeHead(200);
+  res.end("Welcome to Node.js HTTPS Servern");
+}).listen(8443);

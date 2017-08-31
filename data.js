@@ -27,7 +27,6 @@ var callAPI = function(options, callback) {
          }
          if (result['products'].hasOwnProperty(key)) {
             var element = result['products'][key];
-            console.log(element['link']);
             var output = {
                           "fallback": element['name'],
                           "color": "#36a64f",
