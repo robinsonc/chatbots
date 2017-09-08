@@ -27,6 +27,19 @@ var options = {
   key: fs.readFileSync('server.key'),
   cert: fs.readFileSync('server.crt')
 };
+
+
+var server = https.createServer(options, function (req, res) {
+  res.writeHead(200);
+  res.end("Welcome to Node.js HTTPS Server");
+}).listen(443);
+
+server.on('error', function (e) {
+  // Handle your error here
+  console.log(e);
+});
+
+
 app.use(bodyParser.json()); // for parsing application/json
 
 // var port = process.env.PORT || 3000;
@@ -38,9 +51,3 @@ require('./app')(app);
 //   console.log('Client server listening on port ' + port);
 // });
 
-
-
-https.createServer(options, function (req, res) {
-  res.writeHead(200);
-  res.end("Welcome to Node.js HTTPS Server");
-}).listen(8443);

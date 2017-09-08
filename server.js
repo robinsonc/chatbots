@@ -23,7 +23,7 @@ var app = express();
 
 app.use(bodyParser.json()); // for parsing application/json
 
-var port = process.env.PORT || 3000;
+var port = 80;
 app.set('port', port);
 
 require('./app')(app);
@@ -31,3 +31,12 @@ require('./app')(app);
 app.listen(port, function() {
   console.log('Client server listening on port ' + port);
 });
+
+app.on('error', function(err) {
+     console.log(err);
+});
+
+app.get("/", function (request, response) {
+  response.send('Hello Rob');
+});
+
