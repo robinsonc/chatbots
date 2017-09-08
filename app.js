@@ -105,17 +105,19 @@ var botEngine = function(entities, callback) {
   for (var i in queryObject) {
     if (queryObject.hasOwnProperty(i)) {
      switch(i) {
-       case "intent":
+      case "intent":
          break;
-       case "product": queryString += 'global_attr_article_type:'+ queryObject[i] + ' AND ';
+      case "product": queryString += 'global_attr_article_type:'+ queryObject[i] + ' AND ';
          break;
-       case "product_size": queryString += 'sizes:'+ queryObject[i] + ' AND ';
+      case "product_size": queryString += 'sizes:'+ queryObject[i] + ' AND ';
          break;
-       case "product_color": queryString += 'global_attr_base_colour:'+ queryObject[i] + ' AND ';
+      case "product_color": queryString += 'global_attr_base_colour:'+ queryObject[i] + ' AND ';
          break;
-       case "product_brand": queryString += 'global_attr_brand:'+ queryObject[i] + ' AND ';
+      case "product_brand": queryString += 'global_attr_brand:'+ queryObject[i] + ' AND ';
          break;
-        default: queryString += 'no match found';
+      case "gender":queryString += 'gender_from_cms:'+ queryObject[i] + ' AND ';
+         break;
+      default: queryString += 'no match found';
          break;
       }
     }
