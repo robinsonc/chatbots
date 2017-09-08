@@ -77,7 +77,7 @@ var callActions = function(controller){
         .then((data) => {
           var entities = data.entities;
           botEngine(entities, function(reply) {
-              // console.log(message,reply);
+               console.log(reply);
               bot.reply(message, reply);
           }) 
         })
@@ -121,7 +121,6 @@ var botEngine = function(entities, callback) {
     }
   }
   if(queryString.length > 0) {
-	console.log(process.env.ELASTIC_HOST);
     queryString = encodeURIComponent(queryString.slice(0, -4));
     const options = {  
       method: 'GET',

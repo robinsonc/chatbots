@@ -20,7 +20,7 @@ var callAPI = function(options, callback) {
         });
         
        var result = converter(data.hits);
-       var attachments = { "attachments":[] };
+       var attachments = { "attachmentLayout":"carousel","attachments":[] };
        for (var key in result['products']) {
          if(attachments.attachments.length > 5) {
            break;
@@ -28,22 +28,26 @@ var callAPI = function(options, callback) {
          if (result['products'].hasOwnProperty(key)) {
             var element = result['products'][key];
             var output = {
-                          "fallback": element['name'],
-                          "color": "#36a64f",
-                          "title": element['name'],
-                          "title_link": 'https://www.myntra.com/'+element['link'],
-                          "text": "Price:"+ element['price'],
-                          "image_url": element['image'],
-                          "thumb_url": element['image'],
-                          "footer": "Elastic API",
-                          "footer_icon": "https://platform.slack-edge.com/img/default_application_icon.png",
-                          "ts": Math.floor(Date.now() / 1000)
-                      };
+                contentType: 'application/vnd.microsoft.card.hero',
+                content: {
+                    title: element['name'],
+                    subtitle: "&#8377;"+ element['price'],
+                    images: [
+                        { url: element['image']}
+                    ],
+                    buttons: [
+                        {
+                            type: "openUrl",
+                            title: "View Details",
+                            value: 'https://www.myntra.com/'+element['link']
+                        }
+                    ]
+                }
+            };
             attachments.attachments.push(output);
 
          }
        }
-
         return callback(attachments);
       })
       .catch(function (err) {
