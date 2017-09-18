@@ -29,6 +29,7 @@ const client = new Wit({
   //logger: new log.Logger(log.DEBUG) // optional 
 });
 
+var id;
 module.exports = function(app) {
   if (process.env.USE_SLACK) {
     var Slack = require('./bot-slack');
@@ -50,47 +51,59 @@ module.exports = function(app) {
     BotFramework.controller.createWebhookEndpoints(app, BotFramework.bot);
     console.log('BotFramework bot is live');
     callActions(BotFramework.controller);
-//     BotFramework.controller.hears('(.*)', 'message_received', function(bot, message) {
-//       client.message(message.text, {})
-//         .then((data) => {
-//           console.log("message=="+JSON.stringify(data.entities));
-//           var entities = data.entities;
-//           bot.reply(message, JSON.stringify(data.entities));
-        
-//         })
-//         .catch(console.error);
-//     });
-  }
-  if (process.env.USE_TWILIO) {
-    var Twilio = require('./bot-twilio');
-    Twilio.controller.middleware.receive.use(wit.receive);
-    Twilio.controller.createWebhookEndpoints(app, Twilio.bot);
-    console.log('Twilio bot is live');
-    callActions(Twilio.controller);
   }
 };
 
 
 var callActions = function(controller){
   controller.hears('(.*)', ['direct_message', 'direct_mention', 'mention', 'message_received'], function (bot, message) {
-    client.message(message.text, {})
+      bot.reply(message, { type: "typing" });
+      //console.log(message);
+      id = message.user; 
+      controller.storage.users.get(id, function(error, user_data){
+         if(user_data === null) {
+		controller.storage.users.save({id:message.user, name:message.address.user.name, channel:message.source}, function(err) {
+                        // console.log(err);
+                        console.log('SUCCESS!! user added to the table');
+                 });
+	 }
+
+      });
+
+
+        //controller.storage.users.all(function(err, users) {
+         //       console.log("All users == "+JSON.stringify(users));
+       // });
+
+
+	//	controller.storage.user_session.all(function(err, users) {
+	//	console.log("All sessions == "+JSON.stringify(users));
+	//});
+
+      controller.storage.user_session.find({id : id}, function(error, user_session){
+	  if(user_session.length > 0) {
+	 	console.log("Session Found");
+	  }
+          else {
+	 	controller.storage.user_session.save({id : message.user});
+		console.log("New Session created");
+          }
+      }); 
+
+      client.message(message.text, {})
         .then((data) => {
           var entities = data.entities;
-          botEngine(entities, function(reply) {
-               console.log(reply);
+          botEngine(entities, controller, function(reply) {
+              // console.log(reply);
               bot.reply(message, reply);
           }) 
         })
-        .catch(console.error);
-          
-    });
-  
-  // controller.hears(['product'], ['direct_message', 'direct_mention', 'mention', 'message_received'], wit.hears, function (bot, message) {
-  //     bot.reply(message,"productss");     
-  //   });
+        .catch(console.error);          
+      });
+
 }
 
-var botEngine = function(entities, callback) {
+var botEngine = function(entities, controller, callback) {
   let queryObject = {};
     for (var key in entities) {
       var item = entities[key];
@@ -126,10 +139,7 @@ var botEngine = function(entities, callback) {
     queryString = encodeURIComponent(queryString.slice(0, -4));
     const options = {  
       method: 'GET',
-      uri: process.env.ELASTIC_HOST,
-      qs: {
-        q: queryString
-      },
+      uri: process.env.ELASTIC_HOST+'?q='+queryString,
       json: true
     }
   
@@ -137,8 +147,10 @@ var botEngine = function(entities, callback) {
     API.call(options, callback);
   }
   else {
-    console.log("No Match Found!!!!");
-    callback("How can I help You?");
+    controller.storage.users.get(id , function(error , user){
+	callback("Hey "+user.name+", How can I help You?");
+    });
+    console.log("No Match Found!!!!")
   }
 
 }

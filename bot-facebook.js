@@ -15,11 +15,15 @@
  */
 
 var Botkit = require('botkit');
-
+var mongoStorage = require('botkit-storage-mongo')({
+	mongoUri: 'mongodb://localhost:27017/co2',
+	tables: ['user_session']
+});
 var controller = Botkit.facebookbot({
   debug: true,
   access_token: process.env.FB_ACCESS_TOKEN,
-  verify_token: process.env.FB_VERIFY_TOKEN
+  verify_token: process.env.FB_VERIFY_TOKEN,
+  storage: mongoStorage
 });
 
 var bot = controller.spawn();

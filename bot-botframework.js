@@ -15,8 +15,13 @@
  */
 
 var Botkit = require('botkit');
+var mongoStorage = require('botkit-storage-mongo')({
+        mongoUri: 'mongodb://localhost:27017/co2',
+        tables: ['user_session']
+})
 var controller = Botkit.botframeworkbot({
-    debug: true
+    debug: true,
+    storage:mongoStorage
 });
 
 var bot = controller.spawn({

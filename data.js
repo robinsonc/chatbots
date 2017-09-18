@@ -7,6 +7,7 @@
 const request = require('request-promise');
 var JM = require('json-mapper');
 var callAPI = function(options, callback) {
+	console.log(options);
     request(options)  
       .then(function (data) {
         // Request was successful, use the response object at will
@@ -20,11 +21,12 @@ var callAPI = function(options, callback) {
         });
         
        var result = converter(data.hits);
+      // console.log(result);
        var attachments = { "attachmentLayout":"carousel","attachments":[] };
        for (var key in result['products']) {
-         if(attachments.attachments.length > 5) {
-           break;
-         }
+        // if(attachments.attachments.length > 5) {
+          // break;
+         //}
          if (result['products'].hasOwnProperty(key)) {
             var element = result['products'][key];
             var output = {

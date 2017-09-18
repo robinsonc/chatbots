@@ -9,14 +9,15 @@
   "license": "Apache-2.0",
   "dependencies": {
     "body-parser": "^1.17.2",
+    "botbuilder": "^3.9.0",
     "botkit": "^0.5.6",
+    "botkit-witai": "^1.0.8",
+    "crypto": "0.0.3",
     "dotenv": "^4.0.0",
     "express": "^4.15.4",
-    "botbuilder": "^3.9.0",
-    "crypto": "0.0.3",
-    "node-wit": "^4.3.0",
-    "botkit-witai": "^1.0.8",
-    "node-libcurl": "^1.1.0"
+    "mongodb": "^2.2.31",
+    "node-libcurl": "^1.1.0",
+    "node-wit": "^4.3.0"
   },
   "devDependencies": {},
   "author": "robin@adobe.com"
