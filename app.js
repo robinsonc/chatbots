@@ -192,7 +192,14 @@ var botEngine = function (entities, controller, callback) {
           updateSession('color', queryObject[i]);
           break;
         case "product_brand":
-          queryString += 'global_attr_brand:' + queryObject[i] + ' AND ';
+          if(queryString.includes('global_attr_brand')) {
+            console.log('attribute exists '+ queryString);
+            var contextArray = queryString.split(':');
+            console.log(contextArray);
+            queryString += 'global_attr_brand:' + queryObject[i] + ' AND ';
+          } else {
+            queryString += 'global_attr_brand:' + queryObject[i] + ' AND ';
+          }       
           updateSession('brand', queryObject[i]);
           break;
         case "gender":
