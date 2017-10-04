@@ -18,25 +18,36 @@ require('dotenv').load();
 
 var express = require('express');
 var bodyParser = require('body-parser');
-var verify = require('./lib/security');
+var verify = require('./security');
 var app = express();
+var https = require('https');
+var fs = require('fs');
+
+var options = {
+  key: fs.readFileSync('server.key'),
+  cert: fs.readFileSync('server.crt')
+};
+
+
+var server = https.createServer(options, function (req, res) {
+  res.writeHead(200);
+  res.end("Welcome to Node.js HTTPS Server");
+}).listen(443);
+
+server.on('error', function (e) {
+  // Handle your error here
+  console.log(e);
+});
+
 
 app.use(bodyParser.json()); // for parsing application/json
 
-var port = 80;
-app.set('port', port);
+// var port = process.env.PORT || 3000;
+// app.set('port', port);
 
-require('./src/app')(app);
+require('./app')(app);
 // Listen on the specified port
-app.listen(port, function() {
-  console.log('Client server listening on port ' + port);
-});
-
-app.on('error', function(err) {
-     console.log(err);
-});
-
-app.get("/", function (request, response) {
-  response.send('Hello Rob');
-});
+// app.listen(port, function() {
+//   console.log('Client server listening on port ' + port);
+// });
 

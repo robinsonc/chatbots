@@ -18,7 +18,8 @@
     "mongodb": "^2.2.31",
     "node-libcurl": "^1.1.0",
     "node-wit": "^4.3.0",
-    "object-assign": "^4.1.1"
+    "object-assign": "^4.1.1",
+    "promise": "^8.0.1"
   },
   "devDependencies": {},
   "author": "robin@adobe.com"
