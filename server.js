@@ -37,6 +37,6 @@ app.on('error', function(err) {
 });
 
 app.get("/", function (request, response) {
-  response.send('Hello Rob');
+  response.sendFile(__dirname +'/index.html');
 });
 

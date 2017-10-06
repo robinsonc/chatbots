@@ -43,6 +43,7 @@ var Promise = require('promise');
 var id;
 var controller;
 var queryString = '';
+var mboxParams = {};
 var global_product;
 
 module.exports = function (app) {
@@ -77,6 +78,9 @@ var callActions = function (controller) {
       type: "typing"
     });
     //console.log(message);
+
+
+
     id = message.user;
     controller.storage.users.get(id, function (error, user_data) {
       if (user_data === null) {
@@ -185,12 +189,35 @@ var botEngine = function (entities, controller, callback) {
             uri: process.env.ELASTIC_HOST + '?q=' + queryString,
             json: true
           }
-          // console.log(options);
+          console.log('mbox == '+ JSON.stringify(mboxParams));
+          const targetOptions = {
+            method: 'POST',
+            uri: 'https://adobeinternalags308.tt.omtrdc.net/rest/v1/mbox/123468?client=adobeinternalags308',
+            body: {
+              "mbox" : "chatbot_recommendation_mbox",
+              "tntId":"3bdfd9df079d45388dea33863a18b7f7.22_30",
+              "mboxParameters": mboxParams
+            },
+            json: true // Automatically stringifies the body to JSON
+          };
+          // console.log(targetOptions);
           var API = require('../src/data');
           API.call(options, callback);
+          var isTarget = API.target(targetOptions);
+          isTarget.then(function (data) {
+            // console.log(data);
+            setTimeout(function () {
+              API.display(data, callback);
+            }, 3000);
+            
+            }, function (err) {
+              console.error(err);
+          });
+          
         } else {
           controller.storage.users.get(id, function (error, user) {
-            callback("Hey " + user.name + ", How can I help You?");         
+            var greet = "Hey" + (user.name === null ? '':' '+user.name) + ", How can I help You?";
+            callback(greet);         
           });
           console.log("No Match Found!!!!");
         }
@@ -256,13 +283,22 @@ var updateSession = function (key, val) {
   })
 }
 
+function capitalizeFirstLetter(string) {
+  return string.charAt(0).toUpperCase() + string.slice(1);
+}
 
 var createQuery = function (callback) {
   controller.storage.user_session.find({
     id: id
   }, function (error, user_session) {
+    
     if (user_session.length > 0) {
       // console.log("Session Found " + JSON.stringify(user_session));
+      mboxParams = {              
+        brand:"",
+        color:"",
+        category:""
+      };
       Object.keys(user_session[0]).forEach(function (key) {
         var element = user_session[0][key];
         switch (key) {
@@ -270,15 +306,18 @@ var createQuery = function (callback) {
             break;
           case "product":
             queryString = 'global_attr_article_type:' + element + ' AND ';
+            mboxParams.category = capitalizeFirstLetter(element);
             break;
           case "size":
             queryString += 'sizes:' + element + ' AND ';
             break;
           case "color":
             queryString += 'global_attr_base_colour:' + element + ' AND ';
+            mboxParams.color = capitalizeFirstLetter(element);
             break;
           case "brand":
             queryString += 'global_attr_brand:' + element + ' AND ';
+            mboxParams.brand = capitalizeFirstLetter(element);
             break;
           case "gender":
             queryString += 'gender_from_cms:' + element + ' AND ';
