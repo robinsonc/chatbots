@@ -273,7 +273,25 @@ export interface IChatConnectorAddress extends IAddress {
     id?: string;
 
     /** Specifies the URL to post messages back. */ 
-    serviceUrl?: string; 
+    serviceUrl?: string;
+}
+
+/** Additional properties that can be passed in with the address to [UniversalBot.beginDialog()](/en-us/node/builder/chat-reference/classes/_botbuilder_d_.universalbot#begindialog). */
+export interface IStartConversationAddress extends IChatConnectorAddress {
+    /** (Optional) when creating a new conversation, use this activity as the initial message to the conversation. */
+    activity?: any;
+
+    /** (Optional) channel specific payload for creating the conversation. */
+    channelData?: any;
+
+    /** (Optional) if true the conversation should be a group conversation. */
+    isGroup?: boolean;
+
+    /** (Optional) members to add to the conversation. If missing, the conversation will be started with the [user](#user). */
+    members?: IIdentity[];
+
+    /** (Optional) topic of the conversation (if supported by the channel) */
+    topicName?: string;
 }
 
 /**  
@@ -1167,7 +1185,59 @@ export interface IChatConnectorSettings {
     appPassword?: string;
 
     /** If true the bots userData, privateConversationData, and conversationData will be gzipped prior to writing to storage. */
-    gzipData?: boolean;    
+    gzipData?: boolean;
+    
+    /** Collection of various necessary endpoints. Not normally provided by developers. */
+    endpoint?: IChatConnectorEndpoint;
+        
+    /** If not provided, stateEndpoint will default to https://state.botframework.com. */
+    stateEndpoint?: string;
+    
+    /** If not provided, openIdMetadata will default to https://login.botframework.com/v1/.well-known/openidconfiguration. */
+    openIdMetadata?: string;
+}
+    
+/** Options used to set various endpoints in a ChatConnector instance. This should not be changed and is normally not provided by developers in IChatConnectorSettings. Instead the two properties in IChatConnectorSettings, "stateEndpoint," and "openIdMetadata" should be changed there.  */
+export interface IChatConnectorEndpoint {
+    
+    /** Default value is https://login.microsoftonline.com/botframework.com/oauth2/v2.0/token. */
+    refreshEndpoint: string;
+    
+    /** Default value is https://api.botframework.com/.default. */
+    refreshScope: string;
+    
+    /** Default value is https://login.botframework.com/v1/.well-known/openidconfiguration. Configurable via IChatConnectorSettings.openIdMetadata. */
+    botConnectorOpenIdMetadata: string;
+    
+    /** Default value is https://api.botframework.com. */
+    botConnectorIssuer: string;
+    
+    /** This value is provided via IChatConnectorSettings.appId. */
+    botConnectorAudience: string;
+    
+    /** Default value is https://login.microsoftonline.com/common/v2.0/.well-known/openid-configuration. */
+    msaOpenIdMetadata: string;
+    
+    /** Default value is https://sts.windows.net/72f988bf-86f1-41af-91ab-2d7cd011db47/. */
+    msaIssuer: string;
+    
+    /** Default value is https://graph.microsoft.com. */
+    msaAudience: string;
+    
+    /** Default value is https://login.microsoftonline.com/botframework.com/v2.0/.well-known/openid-configuration. */
+    emulatorOpenIdMetadata: string;
+    
+    /** Default value is https://sts.windows.net/d6d49420-f39b-4df7-a1dc-d59a935871db/. */
+    emulatorIssuerV1: string;
+    
+    /** Default value is https://login.microsoftonline.com/d6d49420-f39b-4df7-a1dc-d59a935871db/v2.0. */
+    emulatorIssuerV2: string;
+    
+    /** This value is provided via IChatConnectorSettings.appId. */
+    emulatorAudience: string;
+    
+    /** Default value is https://state.botframework.com. Configurable via IChatConnectorSettings.stateEndpoint. */
+    stateEndpoint: string;
 }
 
 /** Options used to initialize a UniversalBot instance. */
