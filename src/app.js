@@ -38,6 +38,7 @@ mongoUtil.connectToServer(function (err) {
   db = mongoUtil.getDb();
 });
 var Promise = require('promise');
+var greet = require('../assets/greetings.js');
 
 var id;
 var controller;
@@ -77,10 +78,27 @@ module.exports = function (app) {
 
 
 var callActions = function (controller) {
+
+  controller.on('conversationUpdate', function (bot, message) {
+    if (message.membersAdded) {
+      message.membersAdded.forEach(function (identity) {
+        if (identity.id === message.address.bot.id) {
+          bot.reply(message, "Hello!  I'm a bot. I can help you find cool stuffs.");
+          setTimeout(function () {
+            bot.reply(message, greet.greeting);
+          }, 2000);
+        }
+      });
+    }
+  });
+
+
   controller.hears('(.*)', ['direct_message', 'direct_mention', 'mention', 'message_received'], function (bot, message) {
     bot.reply(message, {
       type: "typing"
     });
+
+
     //console.log(message);
     id = message.user;
     controller.storage.users.get(id, function (error, user_data) {
@@ -96,6 +114,21 @@ var callActions = function (controller) {
       }
 
     });
+
+    //Check For Greetings
+    switch (message.value) {
+      //For FB Get-Started event
+      case 'sample_get_started_payload':
+        bot.reply(message, "Hello!  I'm a bot. I can help you find cool stuffs.");
+        setTimeout(function () {
+          bot.reply(message, greet.greeting);
+        }, 2000);
+        return;
+        break;
+
+      default:
+        break;
+    }
 
 
     // controller.storage.users.all(function (err, users) {
@@ -141,282 +174,245 @@ var callActions = function (controller) {
 }
 
 var botEngine = function (entities, controller, callback) {
-    let queryObject = {};
-    console.log("ENTITIES == "+JSON.stringify(entities));
-    for (var key in entities) {
-      var item = entities[key];
-      // console.log(key+" == "+JSON.stringify(item));
-      for (var key2 in item) {
-        // console.log("item2 val == "+JSON.stringify(item[key2]['value']));
-        queryObject[key] = item[key2]['value'];
+  let queryObject = {};
+  console.log("ENTITIES == " + JSON.stringify(entities));
+  for (var key in entities) {
+    var item = entities[key];
+    // console.log(key+" == "+JSON.stringify(item));
+    for (var key2 in item) {
+      // console.log("item2 val == "+JSON.stringify(item[key2]['value']));
+      queryObject[key] = item[key2]['value'];
+    }
+  }
+  var promises = [];
+  for (var i in queryObject) {
+    if (queryObject.hasOwnProperty(i)) {
+      switch (i) {
+        case "intent":
+          break;
+        case "product":
+          promises.push(updateSession('product', queryObject[i]));
+          break;
+        case "product_size":
+          promises.push(updateSession('size', queryObject[i]));
+          break;
+        case "product_color":
+          promises.push(updateSession('color', queryObject[i]));
+          break;
+        case "product_brand":
+          promises.push(updateSession('brand', queryObject[i]));
+          break;
+        case "gender":
+          promises.push(updateSession('gender', queryObject[i]));
+          break;
+        default:
+          // queryString += 'no match found';
+          break;
       }
     }
-    var promises = [];
-    for (var i in queryObject) {
-      if (queryObject.hasOwnProperty(i)) {
-        switch (i) {
-          case "intent":
-            break;
-          case "product":
-            promises.push(updateSession('product', queryObject[i]));
-            break;
-          case "product_size":
-            promises.push(updateSession('size', queryObject[i]));
-            break;
-          case "product_color":
-            promises.push(updateSession('color', queryObject[i]));
-            break;
-          case "product_brand":
-            promises.push(updateSession('brand', queryObject[i]));
-            break;
-          case "gender":
-            promises.push(updateSession('gender', queryObject[i]));
-            break;
-          default:
-            // queryString += 'no match found';
-            break;
-        }
-      }
-    }
+  }
 
-    Promise.all(promises)
-      .then(function (data) { // do stuff when success
-          // console.log(data);
-          createQuery(function () {
-              if (queryString.length > 0) {
-                queryString = encodeURIComponent(queryString.slice(0, -4));
-                console.log("QS == " + queryString);
-                const options = {
-                  method: 'GET',
-                  uri: process.env.ELASTIC_HOST + '?q=' + queryString,
-                  json: true
-                }
-                boolQuery.must = must;
-                boolQuery.filter = filter;
-                boolQuery.should = should;
-                console.log("BOOL == " + JSON.stringify(boolQuery));
-                const elasticOptions = {
-                  method: 'GET',
-                  uri: process.env.ELASTIC_HOST,
-                  //   body: {
-                  //     "query": {
-                  //       "bool": {
-                  //         "must": [{
-                  //           "match": {
-                  //             "global_attr_article_type": "Tshirts"
-                  //           }
-                  //         }, {
-                  //           "match": {
-                  //             "gender_from_cms": "Men"
-                  //           }
-                  //         }],
-                  //         "filter": {
-                  //           "term": {
-                  //             "sizes": "S"
-                  //           }
-                  //         },
-                  //         "should": [{
-                  //           "term": {
-                  //             "global_attr_base_colour": "blue"
-                  //           }
-                  //         }, {
-                  //           "term": {
-                  //             "product_additional_info": "polo"
-                  //           }
-                  //         }],
-                  //         "must_not": {
-                  //           "range": {
-                  //             "price": {
-                  //               "gte": 2000,
-                  //               "lte": 1000
-                  //             }
-                  //           }
-                  //         }
-                  //       }
-                  //     }
-                  // },
-                  body: {
-                    "query": {
-                      "bool": boolQuery
-                    }
-                  },
-                    json: true // Automatically stringifies the body to JSON
-                };
-
-
-                  console.log('mbox == ' + JSON.stringify(mboxParams));
-                  const targetOptions = {
-                    method: 'POST',
-                    uri: 'https://adobeinternalags308.tt.omtrdc.net/rest/v1/mbox/123468?client=adobeinternalags308',
-                    body: {
-                      "mbox": "chatbot_recommendation_mbox",
-                      "tntId": "3bdfd9df079d45388dea33863a18b7f7.22_30",
-                      "mboxParameters": mboxParams
-                    },
-                    json: true // Automatically stringifies the body to JSON
-                  };
-                  // console.log(targetOptions);
-                  var API = require('../src/data');
-                  API.call(elasticOptions, callback);
-                  var isTarget = API.target(targetOptions);
-                  isTarget.then(function (data) {
-                    // console.log(data);
-                    setTimeout(function () {
-                      API.display(data, callback);
-                    }, 3000);
-
-                  }, function (err) {
-                    console.error(err);
-                  });
-
-                }
-                else {
-                  controller.storage.users.get(id, function (error, user) {
-                    var greet = "Hey" + (user.name === null ? '' : ' ' + user.name) + ", How can I help You?";
-                    callback(greet);
-                  });
-                  console.log("No Match Found!!!!");
-                }
-              });
-          })
-        .catch(function (err) { // error handling
-          console.log(err);
-        });
-      }
-
-
-    var updateSession = function (key, val) {
-
-      return new Promise(function (resolve, reject) {
-        if (key === 'product') {
-          global_product = val;
-          //Store previous session if any 
-          controller.storage.user_session.get(id, function (error, user_data) {
-            // console.log("user session == "+ JSON.stringify(user_data), Object.keys(user_data).length);
-            if (Object.keys(user_data).length > 2) {
-              var collection = db.collection('user_history');
-              try {
-                var data = collection.insert({
-                  "id": id,
-                  user_data,
-                  "ts": new Date()
-                });
-              } catch (e) {
-                console.log(e);
+  Promise.all(promises)
+    .then(function (data) { // do stuff when success
+      // console.log(data);
+      createQuery(function () {
+        if (queryString.length > 0) {
+          queryString = encodeURIComponent(queryString.slice(0, -4));
+          console.log("QS == " + queryString);
+          const options = {
+            method: 'GET',
+            uri: process.env.ELASTIC_HOST + '?q=' + queryString,
+            json: true
+          }
+          boolQuery.must = must;
+          boolQuery.filter = filter;
+          boolQuery.should = should;
+          console.log("BOOL == " + JSON.stringify(boolQuery));
+          const elasticOptions = {
+            method: 'GET',
+            uri: process.env.ELASTIC_HOST,
+            body: {
+              "query": {
+                "bool": boolQuery
               }
-              // controller.storage.user_history.find({id:id}, function (error, user_history) {
-              //   console.log('History == '+ JSON.stringify(user_history));
-              // });
-            }
-          });
-          //Create a new session
-          controller.storage.user_session.save({
-            id: id,
-            'product': val
-          });
-          resolve(true);
+            },
+            json: true // Automatically stringifies the body to JSON
+          };
 
-        } else {
-          var collection = db.collection('user_session');
-          var new_value = {};
-          new_value[key] = val;
+
+          console.log('mbox == ' + JSON.stringify(mboxParams));
+          const targetOptions = {
+            method: 'POST',
+            uri: 'https://adobeinternalags308.tt.omtrdc.net/rest/v1/mbox/123468?client=adobeinternalags308',
+            body: {
+              "mbox": "chatbot_recommendation_mbox",
+              "tntId": "3bdfd9df079d45388dea33863a18b7f7.22_30",
+              "mboxParameters": mboxParams
+            },
+            json: true // Automatically stringifies the body to JSON
+          };
+          // console.log(targetOptions);
+          var API = require('../src/data');
+          API.call(elasticOptions, callback);
+          var isTarget = API.target(targetOptions);
+          isTarget.then(function (data) {
+            // console.log(data);
+            setTimeout(function () {
+              API.display(data, callback);
+            }, 3000);
+
+          }, function (err) {
+            console.error(err);
+          });
+
+        }
+        else {
+          controller.storage.users.get(id, function (error, user) {
+            var greet = "Hey" + (user.name === null ? '' : ' ' + user.name) + ", How can I help You?";
+            callback(greet);
+          });
+          console.log("No Match Found!!!!");
+        }
+      });
+    })
+    .catch(function (err) { // error handling
+      console.log(err);
+    });
+}
+
+
+var updateSession = function (key, val) {
+
+  return new Promise(function (resolve, reject) {
+    if (key === 'product') {
+      global_product = val;
+      //Store previous session if any 
+      controller.storage.user_session.get(id, function (error, user_data) {
+        // console.log("user session == "+ JSON.stringify(user_data), Object.keys(user_data).length);
+        if (Object.keys(user_data).length > 2) {
+          var collection = db.collection('user_history');
           try {
-            var data = collection.findOneAndUpdate({
-              "id": id
-            }, {
-              $set: new_value
-            }, {
-              upsert: true,
-              returnNewDocument: false
-            }, function () {
-              resolve(true);
+            var data = collection.insert({
+              "id": id,
+              user_data,
+              "ts": new Date()
             });
           } catch (e) {
             console.log(e);
-            reject(e);
           }
-        }
-      })
-    }
-
-    function capitalizeFirstLetter(string) {
-      return string.charAt(0).toUpperCase() + string.slice(1);
-    }
-
-    var createQuery = function (callback) {
-      controller.storage.user_session.find({
-        id: id
-      }, function (error, user_session) {
-
-        if (user_session.length > 0) {
-          mboxParams = {
-            brand: "",
-            color: "",
-            category: ""
-          };
-          boolQuery = {};
-          must = [];
-          filter = [];
-          should = [];
-          must_not = [];
-          Object.keys(user_session[0]).forEach(function (key) {
-            var element = user_session[0][key];
-            switch (key) {
-              case "intent":
-                break;
-              case "product":
-                must.push({
-                  "match": {
-                    "global_attr_article_type": element
-                  }
-                })
-                queryString = 'global_attr_article_type:' + element + ' AND ';
-                mboxParams.category = capitalizeFirstLetter(element);
-                break;
-              case "size":
-                filter.push({
-                  "term": {
-                    "sizes": element
-                  }
-                })
-                queryString += 'sizes:' + element + ' AND ';
-                break;
-              case "color":
-                should.push({
-                  "match": {
-                    "global_attr_base_colour": element
-                  }
-                })
-                queryString += 'global_attr_base_colour:' + element + ' AND ';
-                mboxParams.color = capitalizeFirstLetter(element);
-                break;
-              case "brand":
-                should.push({
-                  "match": {
-                    "global_attr_brand": element
-                  }
-                })
-                queryString += 'global_attr_brand:' + element + ' AND ';
-                mboxParams.brand = capitalizeFirstLetter(element);
-                break;
-              case "gender":
-                must.push({
-                  "match": {
-                    "gender_from_cms": element
-                  }
-                })
-                queryString += 'gender_from_cms:' + element + ' AND ';
-                break;
-              default:
-                break;
-            }
-          });
-          callback();
-        } else {
-          controller.storage.user_session.save({
-            id: message.user
-          });
-          console.log("New Session created");
+          // controller.storage.user_history.find({id:id}, function (error, user_history) {
+          //   console.log('History == '+ JSON.stringify(user_history));
+          // });
         }
       });
+      //Create a new session
+      controller.storage.user_session.save({
+        id: id,
+        'product': val
+      });
+      resolve(true);
+
+    } else {
+      var collection = db.collection('user_session');
+      var new_value = {};
+      new_value[key] = val;
+      try {
+        var data = collection.findOneAndUpdate({
+          "id": id
+        }, {
+            $set: new_value
+          }, {
+            upsert: true,
+            returnNewDocument: false
+          }, function () {
+            resolve(true);
+          });
+      } catch (e) {
+        console.log(e);
+        reject(e);
+      }
     }
+  })
+}
+
+function capitalizeFirstLetter(string) {
+  return string.charAt(0).toUpperCase() + string.slice(1);
+}
+
+var createQuery = function (callback) {
+  controller.storage.user_session.find({
+    id: id
+  }, function (error, user_session) {
+
+    if (user_session.length > 0) {
+      mboxParams = {
+        brand: "",
+        color: "",
+        category: ""
+      };
+      boolQuery = {};
+      must = [];
+      filter = [];
+      should = [];
+      must_not = [];
+      Object.keys(user_session[0]).forEach(function (key) {
+        var element = user_session[0][key];
+        switch (key) {
+          case "intent":
+            break;
+          case "product":
+            must.push({
+              "match": {
+                "global_attr_article_type": element
+              }
+            })
+            queryString = 'global_attr_article_type:' + element + ' AND ';
+            mboxParams.category = capitalizeFirstLetter(element);
+            break;
+          case "size":
+            filter.push({
+              "term": {
+                "sizes": element
+              }
+            })
+            queryString += 'sizes:' + element + ' AND ';
+            break;
+          case "color":
+            should.push({
+              "match": {
+                "global_attr_base_colour": element
+              }
+            })
+            queryString += 'global_attr_base_colour:' + element + ' AND ';
+            mboxParams.color = capitalizeFirstLetter(element);
+            break;
+          case "brand":
+            should.push({
+              "match": {
+                "global_attr_brand": element
+              }
+            })
+            queryString += 'global_attr_brand:' + element + ' AND ';
+            mboxParams.brand = capitalizeFirstLetter(element);
+            break;
+          case "gender":
+            must.push({
+              "match": {
+                "gender_from_cms": element
+              }
+            })
+            queryString += 'gender_from_cms:' + element + ' AND ';
+            break;
+          default:
+            break;
+        }
+      });
+      callback();
+    } else {
+      controller.storage.user_session.save({
+        id: message.user
+      });
+      console.log("New Session created");
+    }
+  });
+}
