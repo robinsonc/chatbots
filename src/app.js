@@ -173,7 +173,7 @@ var callActions = function (controller) {
 
 }
 
-var botEngine = function (entities, controller, callback) {
+var botEngine = function(entities, controller, callback) {
   let queryObject = {};
   console.log("ENTITIES == " + JSON.stringify(entities));
   for (var key in entities) {
