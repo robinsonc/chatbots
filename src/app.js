@@ -44,12 +44,12 @@ var id;
 var controller;
 var queryString = '';
 var mboxParams = {};
-var global_product;
 var boolQuery = {};
 var must = [];
 var filter = [];
 var should = [];
 var must_not = [];
+var product_category;
 
 module.exports = function (app) {
   if (process.env.USE_SLACK) {
@@ -159,11 +159,11 @@ var callActions = function (controller) {
         botEngine(entities, controller, function (reply) {
           // console.log(reply);
           if (reply === 'Item  not Found') {
-            console.log("gb == " + global_product);
-            controller.storage.user_session.save({
-              id: id,
-              'product': global_product
-            });
+            // console.log("gb == " + global_product);
+            // controller.storage.user_session.save({
+            //   id: id,
+            //   'product': global_product
+            // });
           }
           bot.reply(message, reply);
         })
@@ -172,53 +172,23 @@ var callActions = function (controller) {
   });
 
 }
-
-var botEngine = function(entities, controller, callback) {
+var promises = [];
+var botEngine = function (entities, controller, callback) {
   let queryObject = {};
-  console.log("ENTITIES == " + JSON.stringify(entities));
   for (var key in entities) {
     var item = entities[key];
-    // console.log(key+" == "+JSON.stringify(item));
     for (var key2 in item) {
-      // console.log("item2 val == "+JSON.stringify(item[key2]['value']));
       queryObject[key] = item[key2]['value'];
     }
   }
-  var promises = [];
-  for (var i in queryObject) {
-    if (queryObject.hasOwnProperty(i)) {
-      switch (i) {
-        case "intent":
-          break;
-        case "product":
-          promises.push(updateSession('product', queryObject[i]));
-          break;
-        case "product_size":
-          promises.push(updateSession('size', queryObject[i]));
-          break;
-        case "product_color":
-          promises.push(updateSession('color', queryObject[i]));
-          break;
-        case "product_brand":
-          promises.push(updateSession('brand', queryObject[i]));
-          break;
-        case "gender":
-          promises.push(updateSession('gender', queryObject[i]));
-          break;
-        default:
-          // queryString += 'no match found';
-          break;
-      }
-    }
-  }
+
+  promises.push(handleSession(queryObject));
 
   Promise.all(promises)
     .then(function (data) { // do stuff when success
-      // console.log(data);
       createQuery(function () {
         if (queryString.length > 0) {
           queryString = encodeURIComponent(queryString.slice(0, -4));
-          console.log("QS == " + queryString);
           const options = {
             method: 'GET',
             uri: process.env.ELASTIC_HOST + '?q=' + queryString,
@@ -281,58 +251,112 @@ var botEngine = function(entities, controller, callback) {
 }
 
 
-var updateSession = function (key, val) {
+var handleSession = function (queryObject) {
 
   return new Promise(function (resolve, reject) {
-    if (key === 'product') {
-      global_product = val;
-      //Store previous session if any 
-      controller.storage.user_session.get(id, function (error, user_data) {
-        // console.log("user session == "+ JSON.stringify(user_data), Object.keys(user_data).length);
-        if (Object.keys(user_data).length > 2) {
-          var collection = db.collection('user_history');
-          try {
-            var data = collection.insert({
-              "id": id,
-              user_data,
-              "ts": new Date()
-            });
-          } catch (e) {
-            console.log(e);
-          }
-          // controller.storage.user_history.find({id:id}, function (error, user_history) {
-          //   console.log('History == '+ JSON.stringify(user_history));
-          // });
-        }
-      });
-      //Create a new session
-      controller.storage.user_session.save({
+    var user_session = db.collection('user_session');
+    if (queryObject.hasOwnProperty('product')) {
+      product_category = queryObject.product;
+      user_session.findOne({
         id: id,
-        'product': val
-      });
-      resolve(true);
-
-    } else {
-      var collection = db.collection('user_session');
-      var new_value = {};
-      new_value[key] = val;
-      try {
-        var data = collection.findOneAndUpdate({
+        [product_category]: { $exists: true }
+      }).then(function (product_details) {
+        var data = user_session.update({
           "id": id
         }, {
-            $set: new_value
-          }, {
-            upsert: true,
-            returnNewDocument: false
-          }, function () {
-            resolve(true);
-          });
-      } catch (e) {
-        console.log(e);
-        reject(e);
-      }
+            $set: {
+              "current_category": product_category
+            }
+          },
+          { upsert: true });
+
+        if (product_details === null) {
+          delete queryObject.product;
+          try {
+            var data = user_session.update({
+              "id": id
+            }, {
+                $set: {
+                  [product_category]: queryObject
+                }
+              },
+              {
+                upsert: true,
+                returnNewDocument: true
+              },
+              function (err, doc) {
+                resolve(true);
+              });
+          } catch (e) {
+            console.log(e);
+            reject();
+          }
+        } else {
+          delete queryObject.product;
+          var updateQuery = {};
+          for (var i in queryObject) {
+            if (queryObject.hasOwnProperty(i)) {
+              updateQuery[product_category + "." + i] = queryObject[i];
+            }
+          }
+          try {
+            user_session.findOneAndUpdate(
+              {
+                "id": id,
+                [product_category]: {
+                  $exists: true
+                }
+              },
+              { $set: updateQuery },
+              {
+                upsert: true,
+                returnNewDocument: true
+              },
+              function (err, doc) {
+                resolve(true);
+              });
+          }
+          catch (e) {
+            print(e);
+            reject();
+          }
+        }
+      });
+
+    } else {
+      user_session.findOne({ id: id }, { current_category: 1 }).then(function (currentPointer) {
+        product_category = currentPointer.current_category;
+        var updateQuery = {};
+        for (var i in queryObject) {
+          if (queryObject.hasOwnProperty(i)) {
+            updateQuery[product_category + "." + i] = queryObject[i];
+          }
+        }
+        try {
+          user_session.findOneAndUpdate(
+            {
+              "id": id,
+              [product_category]: {
+                $exists: true
+              }
+            },
+            { $set: updateQuery },
+            {
+              upsert: true,
+              returnNewDocument: true
+            },
+            function (err, doc) {
+              resolve(true);
+            });
+        }
+        catch (e) {
+          print(e);
+          reject();
+        }
+        
+      })
     }
-  })
+  });
 }
 
 function capitalizeFirstLetter(string) {
@@ -341,10 +365,8 @@ function capitalizeFirstLetter(string) {
 
 var createQuery = function (callback) {
   controller.storage.user_session.find({
-    id: id
+    id: id,
   }, function (error, user_session) {
-
-    if (user_session.length > 0) {
       mboxParams = {
         brand: "",
         color: "",
@@ -355,8 +377,21 @@ var createQuery = function (callback) {
       filter = [];
       should = [];
       must_not = [];
-      Object.keys(user_session[0]).forEach(function (key) {
-        var element = user_session[0][key];
+      console.log('product_category == '+product_category);
+      
+      if(product_category !== undefined) {
+        //Product Category Initialization begins here
+        must.push({
+          "match": {
+            "global_attr_article_type": product_category
+          }
+        });
+        queryString = 'global_attr_article_type:' + product_category + ' AND ';
+        mboxParams.category = capitalizeFirstLetter(product_category);
+      //Product Category Initialization ends here
+
+      Object.keys(user_session[0][product_category]).forEach(function (key) {
+        var element = user_session[0][product_category][key];
         switch (key) {
           case "intent":
             break;
@@ -369,7 +404,7 @@ var createQuery = function (callback) {
             queryString = 'global_attr_article_type:' + element + ' AND ';
             mboxParams.category = capitalizeFirstLetter(element);
             break;
-          case "size":
+          case "product_size":
             filter.push({
               "term": {
                 "sizes": element
@@ -377,7 +412,7 @@ var createQuery = function (callback) {
             })
             queryString += 'sizes:' + element + ' AND ';
             break;
-          case "color":
+          case "product_color":
             should.push({
               "match": {
                 "global_attr_base_colour": element
@@ -386,7 +421,7 @@ var createQuery = function (callback) {
             queryString += 'global_attr_base_colour:' + element + ' AND ';
             mboxParams.color = capitalizeFirstLetter(element);
             break;
-          case "brand":
+          case "product_brand":
             should.push({
               "match": {
                 "global_attr_brand": element
@@ -407,12 +442,8 @@ var createQuery = function (callback) {
             break;
         }
       });
-      callback();
-    } else {
-      controller.storage.user_session.save({
-        id: message.user
-      });
-      console.log("New Session created");
     }
+      callback();
   });
 }
+  
