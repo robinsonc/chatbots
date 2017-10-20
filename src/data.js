@@ -34,7 +34,7 @@ var callAPI = function (options, callback) {
                             contentType: 'application/vnd.microsoft.card.hero',
                             content: {
                                 title: element['name'],
-                                subtitle: "&#8377;" + element['price'],
+                                subtitle: "₹" + element['price'],
                                 text : "Available Sizes: " + element['sizes'],
                                 images: [{
                                     url: element['image']
@@ -63,11 +63,9 @@ var callAPI = function (options, callback) {
 }
 
 /**
- * Method to dispaly target recommendations
- * @param {*} options 
- * @param {*} callback 
+ * Method to dispaly target recommendations using adaptive cards
  */
-var displayRecommendations = function (content, callback) {
+var displayRecommendationsAdaptiveCards = function (content, callback) {
 
     var attachments = {
         "type": "message",
@@ -102,7 +100,7 @@ var displayRecommendations = function (content, callback) {
                     },
                     {
                         "type": "TextBlock",
-                        "text": "&#8377;" + element['value'],
+                        "text": "₹" + element['value'],
                         "color": "dark"
                     }
                     ],
@@ -115,12 +113,53 @@ var displayRecommendations = function (content, callback) {
                     ]
                 }
                 };
+                
             attachments.attachments.push(output);
         }
     }
     callback(attachments);
 }
 
+
+/**
+ * Method to dispaly target recommendations using hero cards
+ * @param {*} options 
+ * @param {*} callback 
+ */
+var displayRecommendations = function (content, callback) {
+    
+        var attachments = {
+            "type": "message",
+            "text": "Recommendation for you..",
+            "attachmentLayout": "carousel",
+            "attachments": []
+        };
+    
+        for (var key in content) {
+            // console.log(data['content'][key]);
+            if(content.hasOwnProperty(key)) {
+                var element = content[key];
+    
+                var output = {
+                    contentType: 'application/vnd.microsoft.card.hero',
+                    content: {
+                        title: element['name'],
+                        subtitle: "₹" + element['value'],
+                        images: [{
+                            url: element['thumbnailUrl']
+                        }],
+                        buttons: [{
+                            type: "openUrl",
+                            title: "View Details",
+                            value: 'https://www.myntra.com/' + element['pageUrl']
+                        }]
+                    }
+                };
+                attachments.attachments.push(output);
+            }
+        }
+        callback(attachments);
+    }
 
 var targetAPI = function(options) {
     return new Promise(function(resolve, reject) {
@@ -145,3 +184,5 @@ var targetAPI = function(options) {
 module.exports.call = callAPI;
 module.exports.target = targetAPI;
 module.exports.display = displayRecommendations;
+
+

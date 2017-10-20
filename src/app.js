@@ -164,6 +164,8 @@ var callActions = function (controller) {
             //   id: id,
             //   'product': global_product
             // });
+            reply = "Sorry!! The item you are looking for is not available.";
+            bot.reply(message, greet.greeting);
           }
           bot.reply(message, reply);
         })
@@ -174,16 +176,20 @@ var callActions = function (controller) {
 }
 var promises = [];
 var botEngine = function (entities, controller, callback) {
+  console.log("entities== "+JSON.stringify(entities));
   let queryObject = {};
   for (var key in entities) {
     var item = entities[key];
     for (var key2 in item) {
-      queryObject[key] = item[key2]['value'];
+      if(queryObject.hasOwnProperty(key)) {
+        queryObject[key] = queryObject[key]+','+item[key2]['value'];
+      } else {
+        queryObject[key] = item[key2]['value'];
+      }
     }
   }
-
+  console.log("Query Object == "+JSON.stringify(queryObject));
   promises.push(handleSession(queryObject));
-
   Promise.all(promises)
     .then(function (data) { // do stuff when success
       createQuery(function () {
@@ -227,6 +233,7 @@ var botEngine = function (entities, controller, callback) {
           var isTarget = API.target(targetOptions);
           isTarget.then(function (data) {
             // console.log(data);
+            console.log('Target Called');
             setTimeout(function () {
               API.display(data, callback);
             }, 3000);
@@ -353,7 +360,7 @@ var handleSession = function (queryObject) {
           print(e);
           reject();
         }
-        
+
       })
     }
   });
@@ -367,27 +374,26 @@ var createQuery = function (callback) {
   controller.storage.user_session.find({
     id: id,
   }, function (error, user_session) {
-      mboxParams = {
-        brand: "",
-        color: "",
-        category: ""
-      };
-      boolQuery = {};
-      must = [];
-      filter = [];
-      should = [];
-      must_not = [];
-      console.log('product_category == '+product_category);
-      
-      if(product_category !== undefined) {
-        //Product Category Initialization begins here
-        must.push({
-          "match": {
-            "global_attr_article_type": product_category
-          }
-        });
-        queryString = 'global_attr_article_type:' + product_category + ' AND ';
-        mboxParams.category = capitalizeFirstLetter(product_category);
+    mboxParams = {
+      brand: "",
+      color: "",
+      category: ""
+    };
+    boolQuery = {};
+    must = [];
+    filter = [];
+    should = [];
+    must_not = [];
+
+    if (product_category !== undefined) {
+      //Product Category Initialization begins here
+      must.push({
+        "match": {
+          "global_attr_article_type": product_category
+        }
+      });
+      queryString = 'global_attr_article_type:' + product_category + ' AND ';
+      mboxParams.category = capitalizeFirstLetter(product_category);
       //Product Category Initialization ends here
 
       Object.keys(user_session[0][product_category]).forEach(function (key) {
@@ -413,11 +419,16 @@ var createQuery = function (callback) {
             queryString += 'sizes:' + element + ' AND ';
             break;
           case "product_color":
-            should.push({
-              "match": {
-                "global_attr_base_colour": element
-              }
-            })
+            console.log('Colors == '+ element);
+            element.split(/\s*,\s*/).forEach(function(ele) {
+                console.log(ele);
+                should.push({
+                  "term": {
+                    "global_attr_base_colour": ele
+                  }
+                })
+            });
+
             queryString += 'global_attr_base_colour:' + element + ' AND ';
             mboxParams.color = capitalizeFirstLetter(element);
             break;
@@ -443,7 +454,6 @@ var createQuery = function (callback) {
         }
       });
     }
-      callback();
+    callback();
   });
 }
-  
