@@ -181,7 +181,11 @@ var botEngine = function (entities, controller, callback) {
   for (var key in entities) {
     var item = entities[key];
     for (var key2 in item) {
-      queryObject[key] = item[key2]['value'];
+      if(queryObject.hasOwnProperty(key)) {
+        queryObject[key] = queryObject[key]+','+item[key2]['value'];
+      } else {
+        queryObject[key] = item[key2]['value'];
+      }
     }
   }
   console.log("Query Object == "+JSON.stringify(queryObject));
@@ -415,11 +419,16 @@ var createQuery = function (callback) {
             queryString += 'sizes:' + element + ' AND ';
             break;
           case "product_color":
-            should.push({
-              "match": {
-                "global_attr_base_colour": element
-              }
-            })
+          console.log('Colors == '+ element);
+            element.split(/\s*,\s*/).forEach(function(ele) {
+                console.log(ele);
+                should.push({
+                  "match": {
+                    "global_attr_base_colour": ele
+                  }
+                })
+            });
+
             queryString += 'global_attr_base_colour:' + element + ' AND ';
             mboxParams.color = capitalizeFirstLetter(element);
             break;
