@@ -161,6 +161,11 @@ var displayRecommendations = function (content, callback) {
         callback(attachments);
     }
 
+
+/**
+ * Method to make target api call and 
+ * 
+ */
 var targetAPI = function(options) {
     return new Promise(function(resolve, reject) {
         request(options)
@@ -184,5 +189,4 @@ var targetAPI = function(options) {
 module.exports.call = callAPI;
 module.exports.target = targetAPI;
 module.exports.display = displayRecommendations;
-
 

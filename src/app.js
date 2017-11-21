@@ -219,7 +219,7 @@ var botEngine = function (entities, controller, callback) {
           console.log('mbox == ' + JSON.stringify(mboxParams));
           const targetOptions = {
             method: 'POST',
-            uri: 'https://adobeinternalags308.tt.omtrdc.net/rest/v1/mbox/123468?client=adobeinternalags308',
+            uri: process.env.TARGET_HOST,
             body: {
               "mbox": "chatbot_recommendation_mbox",
               "tntId": "3bdfd9df079d45388dea33863a18b7f7.22_30",
@@ -227,7 +227,7 @@ var botEngine = function (entities, controller, callback) {
             },
             json: true // Automatically stringifies the body to JSON
           };
-          // console.log(targetOptions);
+           console.log(targetOptions);
           var API = require('../src/data');
           API.call(elasticOptions, callback);
           var isTarget = API.target(targetOptions);
@@ -411,8 +411,8 @@ var createQuery = function (callback) {
             mboxParams.category = capitalizeFirstLetter(element);
             break;
           case "product_size":
-            filter.push({
-              "term": {
+            should.push({
+              "match": {
                 "sizes": element
               }
             })
